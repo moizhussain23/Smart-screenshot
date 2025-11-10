@@ -81,3 +81,8 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
     statusEl.className = "error";
   }
 });
+
+// View Gallery button
+document.getElementById("viewGalleryBtn").addEventListener("click", () => {
+  chrome.tabs.create({ url: chrome.runtime.getURL('gallery/gallery.html') });
+});

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Screenshot Notes - Gallery</title>
+  <link rel="stylesheet" href="gallery.css">
+</head>
+<body>
+  <div class="header">
+    <div class="header-content">
+      <h1>📸 Smart Screenshot Notes</h1>
+      <p class="subtitle">Your saved screenshots and notes</p>
+    </div>
+    <div class="header-actions">
+      <input type="text" id="searchInput" placeholder="Search by note or URL..." />
+      <select id="sortSelect" class="btn-secondary">
+        <option value="newest">📅 Newest First</option>
+        <option value="oldest">📅 Oldest First</option>
+        <option value="url">🔗 By URL</option>
+      </select>
+      <button id="exportAllBtn" class="btn-primary">📦 Export All</button>
+      <button id="deleteAllBtn" class="btn-danger">🗑️ Delete All</button>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat-card">
+      <span class="stat-number" id="totalCount">0</span>
+      <span class="stat-label">Total Screenshots</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-number" id="todayCount">0</span>
+      <span class="stat-label">Today</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-number" id="weekCount">0</span>
+      <span class="stat-label">This Week</span>
+    </div>
+  </div>
+
+  <div id="emptyState" class="empty-state">
+    <div class="empty-icon">📸</div>
+    <h2>No screenshots yet</h2>
+    <p>Click the extension icon and capture your first screenshot!</p>
+  </div>
+
+  <div id="gallery" class="gallery"></div>
+
+  <!-- Modal for full-size view -->
+  <div id="modal" class="modal">
+  <span class="close">&times;</span>
+  <div class="modal-body">
+    <img class="modal-content" id="modalImg" alt="Screenshot">
+    <div class="modal-info">
+      <h3 id="modalTitle"></h3>
+      <p id="modalNote"></p>
+      <p id="modalUrl"></p>
+      <p id="modalDate"></p>
+      <button id="modalDownload" class="btn-primary">📥 Download</button>
+    </div>
+  </div>
+</div>
+
+  <script src="gallery.js"></script>
+</body>
+</html>
