@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Icon Generator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      text-align: center;
+    }
+    canvas {
+      border: 1px solid #ddd;
+      margin: 20px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <h2>Extension Icon Generator</h2>
+  <p>This will create a simple icon for the extension. Click the button below to download.</p>
+  <canvas id="canvas" width="128" height="128"></canvas>
+  <br>
+  <button onclick="downloadIcon()">Download icon128.png</button>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    // Draw the icon
+    function drawIcon() {
+      // Background circle
+      ctx.fillStyle = '#4CAF50';
+      ctx.beginPath();
+      ctx.arc(64, 64, 60, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Camera body
+      ctx.fillStyle = 'white';
+      ctx.beginPath();
+      ctx.roundRect(32, 48, 64, 48, 6);
+      ctx.fill();
+
+      // Camera lens - outer
+      ctx.fillStyle = '#4CAF50';
+      ctx.beginPath();
+      ctx.arc(64, 72, 16, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Camera lens - middle
+      ctx.fillStyle = 'white';
+      ctx.beginPath();
+      ctx.arc(64, 72, 12, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Camera lens - inner
+      ctx.fillStyle = '#4CAF50';
+      ctx.beginPath();
+      ctx.arc(64, 72, 8, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Flash
+      ctx.fillStyle = '#FFD700';
+      ctx.beginPath();
+      ctx.roundRect(80, 52, 8, 6, 2);
+      ctx.fill();
+
+      // Viewfinder
+      ctx.fillStyle = '#E8F5E9';
+      ctx.beginPath();
+      ctx.roundRect(40, 54, 12, 8, 2);
+      ctx.fill();
+
+      // Note icon overlay
+      ctx.fillStyle = 'white';
+      ctx.strokeStyle = '#4CAF50';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(78, 82, 28, 32, 3);
+      ctx.fill();
+      ctx.stroke();
+
+      // Note lines
+      ctx.strokeStyle = '#4CAF50';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(82, 90);
+      ctx.lineTo(102, 90);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(82, 96);
+      ctx.lineTo(102, 96);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(82, 102);
+      ctx.lineTo(96, 102);
+      ctx.stroke();
+    }
+
+    // Polyfill for roundRect if not available
+    if (!CanvasRenderingContext2D.prototype.roundRect) {
+      CanvasRenderingContext2D.prototype.roundRect = function(x, y, width, height, radius) {
+        this.moveTo(x + radius, y);
+        this.lineTo(x + width - radius, y);
+        this.quadraticCurveTo(x + width, y, x + width, y + radius);
+        this.lineTo(x + width, y + height - radius);
+        this.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+        this.lineTo(x + radius, y + height);
+        this.quadraticCurveTo(x, y + height, x, y + height - radius);
+        this.lineTo(x, y + radius);
+        this.quadraticCurveTo(x, y, x + radius, y);
+      };
+    }
+
+    function downloadIcon() {
+      const link = document.createElement('a');
+      link.download = 'icon128.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+
+    // Draw the icon on load
+    drawIcon();
+  </script>
+</body>
+</html>

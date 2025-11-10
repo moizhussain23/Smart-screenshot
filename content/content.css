@@ -1,0 +1,8 @@
+/* Content styles for Smart Screenshot Notes */
+
+/* Future feature: Styles for highlighted elements or overlays */
+.screenshot-highlight {
+  outline: 3px solid #4CAF50;
+  outline-offset: 2px;
+  transition: outline 0.2s ease;
+}
