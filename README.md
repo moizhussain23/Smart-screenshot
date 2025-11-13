@@ -32,7 +32,28 @@ smart-screenshot-notes/
    - Add a note in the text area
    - Click "💾 Save" to save the screenshot with your note
 ```
+## 🛠️ Installation (Local Testing)
 
+1. **Clone or download this repository**
+
+2. **Open Chrome and navigate to:**
+   ```
+   chrome://extensions/
+   ```
+
+3. **Enable Developer Mode**
+   - Toggle the "Developer mode" switch in the top-right corner
+
+4. **Load the extension**
+   - Click "Load unpacked"
+   - Select the `smart-screenshot-notes` folder
+
+5. **Test the extension**
+   - Click the extension icon in your toolbar
+   - Click "📸 Capture Screenshot" to capture the current tab
+   - Add a note in the text area
+   - Click "💾 Save" to save the screenshot with your note
+   
 ## 📝 How to Use
 
 1. **Capture**: Click the extension icon and press "📸 Capture Screenshot"
