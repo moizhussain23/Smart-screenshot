@@ -27,25 +27,6 @@ smart-screenshot-notes/
 │   └── icon128.png       # Extension icon
 └── utils/
     └── capture.js        # Screenshot utility functions
-```
-
-## 🛠️ Installation (Local Testing)
-
-1. **Clone or download this repository**
-
-2. **Open Chrome and navigate to:**
-   ```
-   chrome://extensions/
-   ```
-
-3. **Enable Developer Mode**
-   - Toggle the "Developer mode" switch in the top-right corner
-
-4. **Load the extension**
-   - Click "Load unpacked"
-   - Select the `smart-screenshot-notes` folder
-
-5. **Test the extension**
    - Click the extension icon in your toolbar
    - Click "📸 Capture Screenshot" to capture the current tab
    - Add a note in the text area

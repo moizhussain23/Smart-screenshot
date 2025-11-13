@@ -44,6 +44,9 @@ function displayScreenshots() {
     const card = createScreenshotCard(screenshot, index);
     gallery.appendChild(card);
   });
+  
+  // Initialize icons for new content
+  setTimeout(() => createIcons(), 100);
 }
 
 // Create a screenshot card element
@@ -51,23 +54,47 @@ function createScreenshotCard(screenshot, index) {
   const card = document.createElement('div');
   card.className = 'screenshot-card';
   
-  const noteText = screenshot.note || 'No note added';
-  const noteClass = screenshot.note ? '' : 'empty';
+  const noteText = screenshot.note || '';
   const formattedDate = formatDate(screenshot.timestamp);
+  const fileSize = formatFileSize(screenshot.size || 0);
   
   card.innerHTML = `
-    <img src="${screenshot.screenshot}" alt="Screenshot" class="screenshot-image" data-index="${index}">
-    <div class="screenshot-info">
-      <div class="screenshot-note ${noteClass}">${escapeHtml(noteText)}</div>
-      <div class="screenshot-title">${escapeHtml(screenshot.title)}</div>
-      <a href="${screenshot.url}" target="_blank" class="screenshot-url">${escapeHtml(screenshot.url)}</a>
-      <div class="screenshot-date">${formattedDate}</div>
-      <div class="screenshot-actions">
-        <button class="btn-primary download-btn" data-index="${index}">📥 Download</button>
-        <button class="btn-danger delete-btn" data-index="${index}">🗑️ Delete</button>
+    <div class="screenshot-content">
+      <div class="screenshot-image-container">
+        <img src="${screenshot.screenshot}" alt="Screenshot" class="screenshot-image" data-index="${index}">
+        <div class="screenshot-overlay"></div>
+        <div class="screenshot-actions">
+          <button class="screenshot-action-btn download-btn" data-index="${index}" title="Download">
+            <i data-icon="download"></i>
+          </button>
+          <button class="screenshot-action-btn danger delete-btn" data-index="${index}" title="Delete">
+            <i data-icon="trash-2"></i>
+          </button>
+        </div>
+      </div>
+      <div class="screenshot-info">
+        <h3 class="screenshot-title">${escapeHtml(screenshot.title)}</h3>
+        <div class="screenshot-meta">
+          <div class="meta-item">
+            <i data-icon="calendar"></i>
+            <span>${formattedDate}</span>
+          </div>
+          <div class="meta-item">
+            <i data-icon="hard-drive"></i>
+            <span>${fileSize}</span>
+          </div>
+        </div>
+        ${noteText ? `<div class="screenshot-note">${escapeHtml(noteText)}</div>` : ''}
       </div>
     </div>
   `;
+  
+  // Add click event to open modal
+  card.addEventListener('click', (e) => {
+    if (!e.target.closest('.screenshot-actions')) {
+      openModal(screenshot, index);
+    }
+  });
   
   return card;
 }
@@ -102,13 +129,27 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
+// Format file size
+function formatFileSize(bytes) {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
+}
+
 // Update statistics
 function updateStats() {
   const totalCount = document.getElementById('totalCount');
   const todayCount = document.getElementById('todayCount');
   const weekCount = document.getElementById('weekCount');
+  const totalSize = document.getElementById('totalSize');
   
   totalCount.textContent = allScreenshots.length;
+  
+  // Calculate total size
+  const totalBytes = allScreenshots.reduce((acc, s) => acc + (s.size || 0), 0);
+  totalSize.textContent = formatFileSize(totalBytes);
   
   // Count today's screenshots
   const today = new Date();
@@ -137,11 +178,19 @@ function updateStats() {
 function setupEventListeners() {
   // Search functionality
   const searchInput = document.getElementById('searchInput');
-  searchInput.addEventListener('input', handleSearch);
+  if (searchInput) {
+    searchInput.addEventListener('input', handleSearch);
+  }
   
   // Sort functionality
   const sortSelect = document.getElementById('sortSelect');
   sortSelect.addEventListener('change', handleSort);
+  
+  // View toggle
+  const gridViewBtn = document.getElementById('gridViewBtn');
+  const listViewBtn = document.getElementById('listViewBtn');
+  gridViewBtn.addEventListener('click', () => setViewMode('grid'));
+  listViewBtn.addEventListener('click', () => setViewMode('list'));
   
   // Export all button
   const exportAllBtn = document.getElementById('exportAllBtn');
@@ -157,15 +206,19 @@ function setupEventListeners() {
   
   // Modal close
   const modal = document.getElementById('modal');
-  const closeBtn = document.querySelector('.close');
-  closeBtn.addEventListener('click', () => modal.classList.remove('show'));
+  const modalClose = document.getElementById('modalClose');
+  modalClose.addEventListener('click', () => closeModal());
   modal.addEventListener('click', (e) => {
-    if (e.target === modal) modal.classList.remove('show');
+    if (e.target.classList.contains('modal-backdrop')) closeModal();
   });
   
-  // Modal download
+  // Modal actions
+  const copyUrlBtn = document.getElementById('copyUrlBtn');
   const modalDownload = document.getElementById('modalDownload');
+  const modalDelete = document.getElementById('modalDelete');
+  copyUrlBtn.addEventListener('click', handleCopyUrl);
   modalDownload.addEventListener('click', handleModalDownload);
+  modalDelete.addEventListener('click', handleModalDelete);
 }
 
 // Handle search
@@ -352,7 +405,197 @@ async function handleExportAll() {
       link.click();
       URL.revokeObjectURL(url);
     }, allScreenshots.length * 200 + 500);
-    
-    alert('Export started! Check your downloads folder.');
   }
 }
+
+// Handle delete all
+async function handleDeleteAll() {
+  if (allScreenshots.length === 0) {
+    alert('No screenshots to delete!');
+    return;
+  }
+  
+  const confirmed = confirm(`Are you sure you want to delete all ${allScreenshots.length} screenshot${allScreenshots.length > 1 ? 's' : ''}? This action cannot be undone.`);
+  
+  if (confirmed) {
+    try {
+      await chrome.storage.local.set({ screenshots: [] });
+      allScreenshots = [];
+      filteredScreenshots = [];
+      displayScreenshots();
+      updateStats();
+      alert('All screenshots deleted successfully!');
+    } catch (error) {
+      console.error('Error deleting screenshots:', error);
+      alert('Error deleting screenshots. Please try again.');
+    }
+  }
+}
+
+// Handle gallery clicks (event delegation)
+function handleGalleryClick(e) {
+  const downloadBtn = e.target.closest('.download-btn');
+  const deleteBtn = e.target.closest('.delete-btn');
+  
+  if (downloadBtn) {
+    const index = parseInt(downloadBtn.dataset.index);
+    handleDownload(index);
+  } else if (deleteBtn) {
+    const index = parseInt(deleteBtn.dataset.index);
+    handleDelete(index);
+  }
+}
+
+// Handle download
+function handleDownload(index) {
+  const screenshot = filteredScreenshots[index];
+  if (screenshot) {
+    const link = document.createElement('a');
+    link.href = screenshot.screenshot;
+    const timestamp = new Date(screenshot.timestamp).getTime();
+    const filename = `screenshot-${timestamp}.png`;
+    link.download = filename;
+    link.click();
+  }
+}
+
+// Handle delete
+async function handleDelete(index) {
+  const screenshot = filteredScreenshots[index];
+  if (!screenshot) return;
+  
+  const confirmed = confirm('Are you sure you want to delete this screenshot?');
+  if (!confirmed) return;
+  
+  try {
+    // Remove from allScreenshots array
+    const originalIndex = allScreenshots.findIndex(s => 
+      s.timestamp === screenshot.timestamp && s.url === screenshot.url
+    );
+    
+    if (originalIndex !== -1) {
+      allScreenshots.splice(originalIndex, 1);
+      
+      // Save updated array to storage
+      await chrome.storage.local.set({ screenshots: allScreenshots });
+      
+      // Update filtered array and display
+      filteredScreenshots = filteredScreenshots.filter((_, i) => i !== index);
+      displayScreenshots();
+      updateStats();
+      
+      // Reinitialize Lucide icons for new content
+      setTimeout(() => createIcons(), 100);
+    }
+  } catch (error) {
+    console.error('Error deleting screenshot:', error);
+    alert('Error deleting screenshot. Please try again.');
+  }
+}
+
+// Set view mode (grid or list)
+function setViewMode(mode) {
+  const gallery = document.getElementById('gallery');
+  const gridBtn = document.getElementById('gridViewBtn');
+  const listBtn = document.getElementById('listViewBtn');
+  
+  if (mode === 'grid') {
+    gallery.className = 'gallery grid-view';
+    gridBtn.classList.add('active');
+    listBtn.classList.remove('active');
+  } else {
+    gallery.className = 'gallery list-view';
+    listBtn.classList.add('active');
+    gridBtn.classList.remove('active');
+  }
+  
+  // Reinitialize Lucide icons
+  setTimeout(() => createIcons(), 100);
+}
+
+// Open modal
+function openModal(screenshot, index) {
+  const modal = document.getElementById('modal');
+  const modalImg = document.getElementById('modalImg');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalNote = document.getElementById('modalNote');
+  const modalUrl = document.getElementById('modalUrl');
+  const modalDate = document.getElementById('modalDate');
+  const modalSize = document.getElementById('modalSize');
+  
+  modalImg.src = screenshot.screenshot;
+  modalTitle.textContent = screenshot.title;
+  modalNote.textContent = screenshot.note || 'No note added';
+  modalUrl.textContent = screenshot.url;
+  modalDate.textContent = formatDate(screenshot.timestamp);
+  modalSize.textContent = formatFileSize(screenshot.size || 0);
+  
+  // Store current screenshot for modal actions
+  modal.dataset.currentIndex = index;
+  
+  modal.classList.add('show');
+  
+  // Reinitialize Lucide icons
+  setTimeout(() => createIcons(), 100);
+}
+
+// Close modal
+function closeModal() {
+  const modal = document.getElementById('modal');
+  modal.classList.remove('show');
+}
+
+// Handle copy URL
+async function handleCopyUrl() {
+  try {
+    const modal = document.getElementById('modal');
+    const index = parseInt(modal.dataset.currentIndex);
+    const screenshot = filteredScreenshots[index];
+    
+    if (!screenshot) return;
+    
+    // Copy URL to clipboard
+    await navigator.clipboard.writeText(screenshot.url);
+    
+    // Show success feedback
+    const copyBtn = document.getElementById('copyUrlBtn');
+    const originalHTML = copyBtn.innerHTML;
+    copyBtn.innerHTML = '<i data-icon="check"></i>';
+    copyBtn.style.background = 'var(--emerald-500)';
+    copyBtn.style.color = 'white';
+    
+    setTimeout(() => {
+      copyBtn.innerHTML = originalHTML;
+      copyBtn.style.background = 'var(--slate-200)';
+      copyBtn.style.color = '';
+      createIcons();
+    }, 1500);
+    
+  } catch (error) {
+    console.error('Failed to copy URL:', error);
+    alert('Failed to copy URL to clipboard');
+  }
+}
+
+// Handle modal download
+function handleModalDownload() {
+  const modal = document.getElementById('modal');
+  const index = parseInt(modal.dataset.currentIndex);
+  handleDownload(index);
+}
+
+// Handle modal delete
+async function handleModalDelete() {
+  const modal = document.getElementById('modal');
+  const index = parseInt(modal.dataset.currentIndex);
+  
+  closeModal();
+  await handleDelete(index);
+}
+
+// Initialize icons after content loads
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    createIcons();
+  }, 100);
+});

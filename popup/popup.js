@@ -46,13 +46,18 @@ document.getElementById("saveBtn").addEventListener("click", async () => {
     // Get current tab info for context
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     
+    // Calculate approximate file size from data URL
+    const base64Data = window.currentScreenshot.split(',')[1];
+    const sizeInBytes = Math.round((base64Data.length * 3) / 4);
+    
     // Create a screenshot entry
     const screenshotData = {
       url: tab.url,
       title: tab.title,
       note: note,
       screenshot: window.currentScreenshot,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      size: sizeInBytes
     };
     
     // Get existing screenshots from storage
