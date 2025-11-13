@@ -31,6 +31,7 @@ smart-screenshot-notes/
    - Click "📸 Capture Screenshot" to capture the current tab
    - Add a note in the text area
    - Click "💾 Save" to save the screenshot with your note
+```
 
 ## 📝 How to Use
 
@@ -48,27 +49,9 @@ This extension requires the following permissions:
 - `scripting`: For future features (element highlighting, etc.)
 - `host_permissions`: To work on all websites
 
-## 🎯 Future Enhancements
-
-- [ ] Gallery view to browse saved screenshots
-- [ ] Export screenshots as PNG/PDF
-- [ ] Element highlighting before capture
-- [ ] Screenshot annotations (draw, arrows, text)
-- [ ] Cloud sync (optional)
-- [ ] Keyboard shortcuts
-- [ ] Full page screenshot (scrolling capture)
-
 ## 🤝 Contributing
 
 This is an open-source project. Feel free to fork, modify, and submit pull requests!
-
-## 📄 License
-
-MIT License - Feel free to use this project for your portfolio or personal use.
-
-## 👨‍💻 Author
-
-Built as a portfolio project to demonstrate Chrome Extension development skills.
 
 ---
 
