@@ -7,7 +7,7 @@ A Chrome extension that allows you to capture screenshots with context and notes
 - **Quick Screenshot Capture**: Capture the current visible tab with one click
 - **Add Notes**: Attach notes to your screenshots for better context
 - **Local Storage**: All screenshots and notes are saved locally in your browser
-- **Simple & Clean UI**: Modern, intuitive interface
+- **Simple & Clean UI**: Modern, intuitive interface.
 
 ## 📁 Project Structure
 
