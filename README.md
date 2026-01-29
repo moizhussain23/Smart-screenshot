@@ -32,7 +32,7 @@ smart-screenshot-notes/
    - Add a note in the text area
    - Click "💾 Save" to save the screenshot with your note
 ```
-## 🛠️ Installation (Local Testing)
+## 🛠️ Installation
 
 1. **Clone or download this repository**
 
