@@ -1,6 +1,6 @@
 # 📸 Smart Screenshot Notes - Chrome Extension
 
-A Chrome extension that allows you to capture screenshots with context and notes directly from your browser.
+A Chrome extension that allows you to capture screenshots with context and notes directly from your browser
 
 ## 🚀 Features
 
